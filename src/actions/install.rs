@@ -11,7 +11,7 @@ pub fn repo(path: &Path, pretend: bool) {
     }
 }
 
-fn modules(path: PathBuf, pretend: bool) -> std::io::Result<()> {
+pub fn modules(path: PathBuf, pretend: bool) -> std::io::Result<()> {
     let regex = Regex::new(
         "(?:\\[(?P<header>.*)\\])|(?:\"(?P<source>\\./.*)\"\\s+?=\\s*\"(?P<target>.*)\")",
     )
