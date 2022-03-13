@@ -17,7 +17,7 @@ impl Action {
     pub fn from_str(name: &str) -> Action {
         match name {
             "install"   => {return Action::Install},
-            "Uninstall" => {return Action::Uninstall},
+            "uninstall" => {return Action::Uninstall},
             "init"      => {return Action::Init},
             _           => {println!("Unknow action: {}", name ); std::process::exit(22)}
         }
@@ -36,20 +36,14 @@ impl Parameters{
         let mut dir_path: Option<PathBuf> = None;
         let path: PathBuf;
 
-        let dotfmdir = shellexpand::full("DOTFM_DIR") ;
+        let dotfmdir = shellexpand::full("$DOTFM_DIR") ;
         match dotfmdir {
-            Ok(val) => {
-                if Path::new(val.as_ref()).exists() {
-                    dir_path = Some([val.as_ref()].iter().collect());
-                } else {
-                    println!("DOTFM_DIR is set to \"{}\" but it doesen't exist",env::var("DOTFM_DIR").unwrap());
-                }
-            }
+            Ok(val) => { dir_path = Some([val.as_ref()].iter().collect());}
             Err(val) => {}
         }
         if dir_path.is_none(){
 
-            let xdgconfdir = shellexpand::full("XDG_CONF_DIR/dotfm");
+            let xdgconfdir = shellexpand::full("$XDG_CONF_DIR/dotfm");
             match xdgconfdir {
                 Ok(val) => {
                     if Path::new(val.as_ref()).exists() {
@@ -68,10 +62,12 @@ impl Parameters{
                         }
                     }
                     Err(val) => {
-
-                        let home = shellexpand::full("$HOME/dotfm");
-                        dir_path = Some([home.unwrap().as_ref()].iter().collect());
                     }
+                }
+                if dir_path.is_none(){
+                    let home = shellexpand::full("$HOME/dotfm");
+                    dir_path = Some([home.unwrap().as_ref()].iter().collect());
+
                 }
 
             }
@@ -79,7 +75,7 @@ impl Parameters{
         path = dir_path.unwrap();
 
         Self {
-            pretend: true,
+            pretend: false,
             action,
             path,
             url: None,
