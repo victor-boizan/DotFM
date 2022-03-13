@@ -8,7 +8,6 @@ use std::os::unix;
 pub enum UninstallMode {
     Unlink,
     Clear,
-    None,
 }
 impl UninstallMode {
     pub fn from_str(name: &str) -> UninstallMode {
@@ -78,6 +77,7 @@ pub fn modules(path: PathBuf, mode: &UninstallMode, del: bool, pretend: bool) ->
                     match mode {
                         UninstallMode::Unlink => {
                             if target.is_symlink() {
+                                fs::remove_file(target);
                                 fs::copy(source, target);
                             }
                         },
@@ -86,7 +86,6 @@ pub fn modules(path: PathBuf, mode: &UninstallMode, del: bool, pretend: bool) ->
                                 fs::remove_file(target);
                             }
                         },
-                        UninstallMode::None => {}
                     }
                 }
             }
