@@ -3,14 +3,13 @@ use std::env;
 use std::path::Path;
 
 use git2::Repository;
-use std::fs;
-use std::io;
 
 mod actions;
+mod conf_modules;
 
 fn main() {
     /*default values for variable*/
-    let mut pretend = false;
+    let mut pretend = true;
     let mut args_index = 1;
     let path_expand = shellexpand::full("$HOME/.config/dotfm").unwrap();
     let mut path = path_expand.as_ref();
@@ -45,41 +44,27 @@ fn main() {
             "\naction: {}\npath: {}\npretend: {}\n",
             action, path, pretend
         );
-        if action == "install" {
-            if url != "" {
-                let repo = match Repository::clone(url, path) {
-                    Ok(repo) => repo,
-                    Err(e) => panic!("failed to clone: {}", e),
+        match action.as_str() {
+            "install" => {
+                if url != "" {
+                    let repo = match Repository::clone(url, path) {
+                        Ok(repo) => repo,
+                        Err(e) => panic!("failed to clone: {}", e),
+                    };
                 };
-            };
-            list_modules(Path::new(path), pretend);
+                conf_modules::list_modules(Path::new(path), pretend);
+            }
+            "uninstall" => {
+                println!("uninstall is not implemented yet");
+            }
+            "init" => {
+                println!("init is not implemented yet");
+            }
+            _ => {
+                println!("Unknown action: {}", args[1]);
+            }
         }
     } else {
         println!("There is no parameters. The programe can't do anything for now");
     }
-}
-
-fn list_modules(repo_root: &Path, pretend: bool) -> io::Result<()> {
-    if repo_root.is_dir() {
-        for entry in fs::read_dir(repo_root)? {
-            let entry = entry?;
-            let path = entry.path();
-            if is_module(&path) {
-                println!("{}", path.display());
-                actions::install::modules(path, pretend);
-            } else {
-            }
-        }
-    }
-    Ok(())
-}
-
-fn is_module(path: &Path) -> bool {
-    let mut module_file = path.to_path_buf();
-    module_file.push(".module.conf");
-    if module_file.is_file() {
-        return true;
-    }
-
-    return false;
 }
