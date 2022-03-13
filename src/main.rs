@@ -9,7 +9,7 @@ mod conf_modules;
 
 fn main() {
     /*default values for variable*/
-    let mut pretend = true;
+    let mut pretend = false;
     let mut args_index = 1;
     let path_expand = shellexpand::full("$HOME/.config/dotfm").unwrap();
     let mut path = path_expand.as_ref();
@@ -54,7 +54,7 @@ fn main() {
                 } else {
 		    /*if an url is provided but in second argument and their is no "--repo" parameter*/
 		    /*add the url to the url variable*/
-		    if arg.len() > 2 && &args[2].start_with("https://") && url == "" {
+		    if args.len() > 2 && args[2].starts_with("https://") && url == "" {
 			url = &args[2];
 		    }
 		    /*if their is an url, it will clone the repo*/
@@ -69,10 +69,17 @@ fn main() {
                 }
             }
             "uninstall" => {
-                println!("uninstall is not implemented yet");
+	        println!("uninstall is not implemented yet");
             }
             "init" => {
-                println!("init is not implemented yet");
+		/*create a new DotFM folder.*/
+		if (args.len() == 2) || (args.len() > 2 && args[2].starts_with("--") ){
+		    /*initialise a repo*/
+                    actions::init::repo(Path::new(path), pretend);
+		}else{
+		    /*initialise a module*/
+                    actions::init::module(Path::new(path), &args[2], pretend);
+		}
             }
             _ => {
                 println!("Unknown action: {}", args[1]);

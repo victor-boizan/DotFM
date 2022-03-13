@@ -2,7 +2,6 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use std::fs;
-use std::io;
 
 pub fn list_modules(repo_root: &Path, pretend: bool) -> Vec<PathBuf> {
     let mut list: Vec<PathBuf> = Vec::new();
