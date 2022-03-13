@@ -8,7 +8,6 @@ mod actions;
 mod conf_modules;
 mod parameters;
 
-
 fn main() {
     let mut args_index = 1;
     let args: Vec<_> = env::args().collect();
