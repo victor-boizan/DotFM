@@ -17,7 +17,7 @@ pub fn list_modules(repo_root: &Path, pretend: bool) -> Vec<PathBuf> {
     }
     return list;
 }
-fn is_module(path: &Path) -> bool {
+pub fn is_module(path: &Path) -> bool {
     let mut module_file = path.to_path_buf();
     module_file.push(".module.conf");
     if module_file.is_file() {

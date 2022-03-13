@@ -34,7 +34,9 @@ fn main() {
                     pretend = true;
                 }
                 _ => {
-                    println!("Unknown parameter: {}", args[args_index]);
+                    if args_index != 2 {
+                        println!("Unknown parameter: {}", args[args_index]);
+                    }
                 }
             };
             args_index += 1;
@@ -46,13 +48,17 @@ fn main() {
         );
         match action.as_str() {
             "install" => {
-                if url != "" {
-                    let repo = match Repository::clone(url, path) {
-                        Ok(repo) => repo,
-                        Err(e) => panic!("failed to clone: {}", e),
+                if args.len() > 2 && conf_modules::is_module(&Path::new(path).join(&args[2])) {
+                    actions::install::modules(Path::new(path).join(&args[2]), pretend);
+                } else {
+                    if url != "" {
+                        let repo = match Repository::clone(url, path) {
+                            Ok(repo) => repo,
+                            Err(e) => panic!("failed to clone: {}", e),
+                        };
                     };
-                };
-                actions::install::repo(Path::new(path), pretend);
+                    actions::install::repo(Path::new(path), pretend);
+                }
             }
             "uninstall" => {
                 println!("uninstall is not implemented yet");
