@@ -76,16 +76,17 @@ pub fn modules(path: PathBuf, mode: &UninstallMode, del: bool, pretend: bool) ->
 
                 if !pretend {
 		    match mode {
-			Unlink => {
+			UninstallMode::Unlink => {
 			    if target.is_symlink() {
 				fs::copy(source, target);
 			    } 
-			}
-			Clear => {
+			},
+			UninstallMode::Clear => {
 			    if target.is_symlink() {
 				fs::remove_file(target);
 			    } 
-			}
+			},
+         UninstallMode::None => {}
             }
                 }
             }
