@@ -7,32 +7,16 @@ use git2::Repository;
 mod actions;
 mod conf_modules;
 
-enum Action{
-    Install,
-    Uninstall,
-    Init,
-}
-
-impl Action {
-    pub fn from_str(name: &str) -> Action {
-        match name {
-            "install"   => {return Action::Install},
-            "uninstall" => {return Action::Uninstall},
-            "init"      => {return Action::Init},
-            _           => {println!("Unknow action: {}", name ); std::process::exit(22)}
-        }
-    }
-}
 struct Parameters{
     pretend: bool,
-    action: Action,
+    action: actions::Action,
     path: PathBuf,
     del: bool,
     url: Option<String>,
     mode: Option<actions::uninstall::UninstallMode>,
 }
 impl Parameters{
-    pub fn default(action: Action) -> Self {
+    pub fn default(action: actions::Action) -> Self {
         let mut dir_path: Option<PathBuf> = None;
         let path: PathBuf;
 
@@ -89,7 +73,7 @@ fn main() {
     let mut args_index = 1;
     let args: Vec<_> = env::args().collect();
     if args.len() > 1 {
-        let mut param = Parameters::default(Action::from_str(&args[1]));
+        let mut param = Parameters::default(actions::Action::from_str(&args[1]));
         //let action = Action::from_str(&args[args_index]);
         args_index += 1;
 
@@ -122,7 +106,7 @@ fn main() {
             args_index += 1;
         }
         match param.action {
-            Action::Install => {
+            actions::Action::Install => {
                 if args.len() > 2 && conf_modules::is_module(&param.path.join(&args[2])) {
                     /*enter if the second argument is a module*/
                     actions::install::modules(param.path.join(&args[2]), param.pretend);
@@ -143,7 +127,7 @@ fn main() {
                     actions::install::repo(&param.path, param.pretend);
                 }
             }
-            Action::Uninstall => {
+            actions::Action::Uninstall => {
                 /*if is a module*/
                 if param.mode.is_some() {
                     if args.len() > 2 && conf_modules::is_module(&param.path.join(&args[2])) {
@@ -155,7 +139,7 @@ fn main() {
                     /*else -> error*/
                 } else {println!("you have to precise what unistallation mode you whant to use"); std::process::exit(1)}
             }
-            Action::Init => {
+            actions::Action::Init => {
                 /*create a new DotFM folder.*/
                 if (args.len() == 2) || (args.len() > 2 && args[2].starts_with("--") ){
                     /*initialise a repo*/
