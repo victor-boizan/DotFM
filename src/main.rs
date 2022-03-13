@@ -10,10 +10,12 @@ mod conf_modules;
 fn main() {
     /*default values for variable*/
     let mut pretend = false;
+    let mut del = false;
     let mut args_index = 1;
     let path_expand = shellexpand::full("$HOME/.config/dotfm").unwrap();
     let mut path = path_expand.as_ref();
     let mut url = "";
+    let mut mode = "";
     let args: Vec<_> = env::args().collect();
     if args.len() > 1 {
         let action = &args[args_index];
@@ -29,7 +31,13 @@ fn main() {
                     url = &args[args_index + 1];
                     args_index += 1;
                 }
-
+		"--mode" => {
+                    mode = &args[args_index + 1];
+                    args_index += 1;
+                }
+		"--delet" => {
+                    del = true
+                }
                 "--pretend" => {
                     pretend = true;
                 }
@@ -68,9 +76,16 @@ fn main() {
                     actions::install::repo(Path::new(path), pretend);
                 }
             }
-            "uninstall" => {
-	        println!("uninstall is not implemented yet");
-            }
+	    "uninstall" => {
+		/*if is a module*/
+		if args.len() > 2 && conf_modules::is_module(&Path::new(path).join(&args[2])) {
+                    actions::uninstall::modules(Path::new(path).join(&args[2]), mode, del, pretend);
+		} else {
+                    /*actions::unistall::repo(Path::new(path), mode, delet, pretend);*/
+		}
+		/*else if is a repo*/
+		/*else -> error*/
+	    }
             "init" => {
 		/*create a new DotFM folder.*/
 		if (args.len() == 2) || (args.len() > 2 && args[2].starts_with("--") ){
