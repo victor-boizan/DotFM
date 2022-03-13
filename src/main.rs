@@ -2,35 +2,40 @@ use std::env;
 
 use std::path::{Path, PathBuf};
 
+use git2::Repository;
+use regex::Regex;
 use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader};
 use std::os::unix;
 
-use regex::Regex;
-
 fn main() {
-    /*default variable*/
+    /*default values for variable*/
     let mut pretend = false;
-
+    let mut args_index = 1;
+    let path_expand = shellexpand::full("$HOME/.config/dotfm").unwrap();
+    let mut path = path_expand.as_ref();
+    let mut url = "";
     let args: Vec<_> = env::args().collect();
     if args.len() > 1 {
-        let mut args_index = 1;
-
         let action = &args[args_index];
         args_index += 1;
 
-        let mut path = "";
         while args_index < args.len() {
             match args[args_index].to_lowercase().as_str() {
                 "--path" => {
                     path = &args[args_index + 1];
                     args_index += 1;
                 }
+                "--repo" => {
+                    repo = &args[args_index + 1];
+                    args_index += 1;
+                }
+
                 "--pretend" => {
                     pretend = true;
                 }
                 _ => {
-                    println!("\"{}\" n'est pas un parametre reconu", args[args_index]);
+                    println!("Unknown parameter: {}", args[args_index]);
                 }
             };
             args_index += 1;
@@ -41,6 +46,12 @@ fn main() {
             action, path, pretend
         );
         if action == "install" {
+            if url != "" {
+                let repo = match Repository::clone(url, path) {
+                    Ok(repo) => repo,
+                    Err(e) => panic!("failed to clone: {}", e),
+                };
+            };
             list_modules(Path::new(path), pretend);
         }
     } else {
@@ -64,13 +75,10 @@ fn list_modules(repo_root: &Path, pretend: bool) -> io::Result<()> {
 }
 
 fn is_module(path: &Path) -> bool {
-    let re = Regex::new(r"/\.[^/]*$").unwrap();
-    if !(re.is_match(path.to_str().unwrap())) && (path.is_dir()) {
-        let mut module_file = path.to_path_buf();
-        module_file.push(".module.conf");
-        if module_file.is_file() {
-            return true;
-        }
+    let mut module_file = path.to_path_buf();
+    module_file.push(".module.conf");
+    if module_file.is_file() {
+        return true;
     }
 
     return false;
@@ -110,12 +118,20 @@ fn install_module(path: PathBuf, pretend: bool) -> std::io::Result<()> {
                 let target_path = shellexpand::full(targ.unwrap().as_str()).unwrap();
                 let target = Path::new(target_path.as_ref());
 
+                #[cfg(debug_assertions)]
                 println!(
                     "[{}] : source => {} | target => {}",
                     index,
                     source.display(),
                     target.display()
                 );
+                #[cfg(not(debug_assertions))]
+                println!(
+                    "\tsource => {} | target => {}",
+                    source.display(),
+                    target.display()
+                );
+
                 if !pretend {
                     if !target.parent().unwrap().exists() {
                         fs::create_dir_all(target.parent().unwrap());
