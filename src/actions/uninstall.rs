@@ -5,13 +5,28 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::os::unix;
 
-pub fn repo(path: &Path, mode: &str, del: bool, pretend: bool){
-    for module_path in crate::conf_modules::list_modules(path, pretend) {
-        modules(module_path, mode, del, pretend);
+pub enum UninstallMode {
+    Unlink,
+    Clear,
+    None,
+}
+impl UninstallMode {
+    pub fn from_str(name: &str) -> UninstallMode {
+        match name {
+            "unlink"   => {return UninstallMode::Unlink},
+            "clear"    => {return UninstallMode::Clear},
+            _          => {println!("Unknow mode: {}", name ); std::process::exit(22)}
+        }
     }
 }
 
-pub fn modules(path: PathBuf, mode: &str, del: bool, pretend: bool) -> std::io::Result<()> {
+pub fn repo(path: &Path, mode: UninstallMode, del: bool, pretend: bool){
+    for module_path in crate::conf_modules::list_modules(path, pretend) {
+        modules(module_path, &mode, del, pretend);
+    }
+}
+
+pub fn modules(path: PathBuf, mode: &UninstallMode, del: bool, pretend: bool) -> std::io::Result<()> {
     let regex = Regex::new(
         "(?:\\[(?P<header>.*)\\])|(?:\"(?P<source>\\./.*)\"\\s+?=\\s*\"(?P<target>.*)\")",
     )
@@ -61,18 +76,17 @@ pub fn modules(path: PathBuf, mode: &str, del: bool, pretend: bool) -> std::io::
 
                 if !pretend {
 		    match mode {
-			"unlink" => {
+			Unlink => {
 			    if target.is_symlink() {
 				fs::copy(source, target);
 			    } 
 			}
-			"clear" => {
+			Clear => {
 			    if target.is_symlink() {
 				fs::remove_file(target);
 			    } 
 			}
-			_ => {}
-		    }
+            }
                 }
             }
         }

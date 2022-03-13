@@ -24,6 +24,7 @@ impl Action {
         }
     }
 }
+
 fn main() {
     /*default values for variable*/
     let mut pretend = false;
@@ -32,7 +33,7 @@ fn main() {
     let path_expand = shellexpand::full("$HOME/.config/dotfm").unwrap();
     let mut path = path_expand.as_ref();
     let mut url = "";
-    let mut mode = "";
+    let mut mode = actions::uninstall::UninstallMode::None;
     let args: Vec<_> = env::args().collect();
     if args.len() > 1 {
         let action = Action::from_str(&args[args_index]);
@@ -49,7 +50,7 @@ fn main() {
                     args_index += 1;
                 }
 		"--mode" => {
-                    mode = &args[args_index + 1];
+                    mode = actions::uninstall::UninstallMode::from_str(&args[args_index + 1]);
                     args_index += 1;
                 }
 		"--delet" => {
@@ -91,7 +92,7 @@ fn main() {
 	    Action::Uninstall => {
 		/*if is a module*/
 		if args.len() > 2 && conf_modules::is_module(&Path::new(path).join(&args[2])) {
-                    actions::uninstall::modules(Path::new(path).join(&args[2]), mode, del, pretend);
+                    actions::uninstall::modules(Path::new(path).join(&args[2]), &mode, del, pretend);
 		} else {
                     /*actions::unistall::repo(Path::new(path), mode, delet, pretend);*/
 		}
