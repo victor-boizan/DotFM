@@ -52,7 +52,7 @@ fn main() {
                         Err(e) => panic!("failed to clone: {}", e),
                     };
                 };
-                conf_modules::list_modules(Path::new(path), pretend);
+                actions::install::repo(Path::new(path), pretend);
             }
             "uninstall" => {
                 println!("uninstall is not implemented yet");

@@ -5,7 +5,13 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
 use std::os::unix;
 
-pub fn modules(path: PathBuf, pretend: bool) -> std::io::Result<()> {
+pub fn repo(path: &Path, pretend: bool) {
+    for module_path in crate::conf_modules::list_modules(path, pretend) {
+        modules(module_path, pretend);
+    }
+}
+
+fn modules(path: PathBuf, pretend: bool) -> std::io::Result<()> {
     let regex = Regex::new(
         "(?:\\[(?P<header>.*)\\])|(?:\"(?P<source>\\./.*)\"\\s+?=\\s*\"(?P<target>.*)\")",
     )
