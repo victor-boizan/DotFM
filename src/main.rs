@@ -6,75 +6,14 @@ use git2::Repository;
 
 mod actions;
 mod conf_modules;
+mod parameters;
 
-struct Parameters{
-    pretend: bool,
-    action: actions::Action,
-    path: PathBuf,
-    del: bool,
-    url: Option<String>,
-    mode: Option<actions::uninstall::UninstallMode>,
-}
-impl Parameters{
-    pub fn default(action: actions::Action) -> Self {
-        let mut dir_path: Option<PathBuf> = None;
-        let path: PathBuf;
-
-        let dotfmdir = shellexpand::full("$DOTFM_DIR") ;
-        match dotfmdir {
-            Ok(val) => { dir_path = Some([val.as_ref()].iter().collect());}
-            Err(val) => {}
-        }
-        if dir_path.is_none(){
-
-            let xdgconfdir = shellexpand::full("$XDG_CONF_DIR/dotfm");
-            match xdgconfdir {
-                Ok(val) => {
-                    if Path::new(val.as_ref()).exists() {
-                        dir_path = Some([val.as_ref()].iter().collect());
-                    }
-                }
-                Err(val) => {}
-            }
-
-            if dir_path.is_none() {
-                let dotconf = shellexpand::full("$HOME/.config/dotfm");
-                match dotconf {
-                    Ok(val) => {
-                        if Path::new(val.as_ref()).exists() {
-                            dir_path = Some([val.as_ref()].iter().collect());
-                        }
-                    }
-                    Err(val) => {
-                    }
-                }
-                if dir_path.is_none(){
-                    let home = shellexpand::full("$HOME/dotfm");
-                    dir_path = Some([home.unwrap().as_ref()].iter().collect());
-
-                }
-
-            }
-        }
-        path = dir_path.unwrap();
-
-        Self {
-            pretend: false,
-            action,
-            path,
-            url: None,
-            mode: None,
-            del: false,
-        }
-    }
-}
 
 fn main() {
     let mut args_index = 1;
     let args: Vec<_> = env::args().collect();
     if args.len() > 1 {
-        let mut param = Parameters::default(actions::Action::from_str(&args[1]));
-        //let action = Action::from_str(&args[args_index]);
+        let mut param = parameters::Parameters::default(actions::Action::from_str(&args[1]));
         args_index += 1;
 
         while args_index < args.len() {
