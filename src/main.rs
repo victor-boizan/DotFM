@@ -7,6 +7,23 @@ use git2::Repository;
 mod actions;
 mod conf_modules;
 
+enum Action{
+    Install,
+    Uninstall,
+    Init,
+    None,
+}
+
+impl Action {
+    pub fn from_str(name: &str) -> Action {
+        match name {
+            "install"   => {return Action::Install},
+            "Uninstall" => {return Action::Uninstall},
+            "init"      => {return Action::Init},
+            _           => {println!("Unknow action: {}", name ); std::process::exit(22)}
+        }
+    }
+}
 fn main() {
     /*default values for variable*/
     let mut pretend = false;
@@ -18,7 +35,7 @@ fn main() {
     let mut mode = "";
     let args: Vec<_> = env::args().collect();
     if args.len() > 1 {
-        let action = &args[args_index];
+        let action = Action::from_str(&args[args_index]);
         args_index += 1;
 
         while args_index < args.len() {
@@ -49,13 +66,8 @@ fn main() {
             };
             args_index += 1;
         }
-        #[cfg(debug_assertions)]
-        println!(
-            "\naction: {}\npath: {}\npretend: {}\n",
-            action, path, pretend
-        );
-        match action.as_str() {
-            "install" => {
+        match action {
+            Action::Install => {
                 if args.len() > 2 && conf_modules::is_module(&Path::new(path).join(&args[2])) {
 		    /*enter if the second argument is a module*/
                     actions::install::modules(Path::new(path).join(&args[2]), pretend);
@@ -76,7 +88,7 @@ fn main() {
                     actions::install::repo(Path::new(path), pretend);
                 }
             }
-	    "uninstall" => {
+	    Action::Uninstall => {
 		/*if is a module*/
 		if args.len() > 2 && conf_modules::is_module(&Path::new(path).join(&args[2])) {
                     actions::uninstall::modules(Path::new(path).join(&args[2]), mode, del, pretend);
@@ -86,7 +98,7 @@ fn main() {
 		/*else if is a repo*/
 		/*else -> error*/
 	    }
-            "init" => {
+            Action::Init => {
 		/*create a new DotFM folder.*/
 		if (args.len() == 2) || (args.len() > 2 && args[2].starts_with("--") ){
 		    /*initialise a repo*/
@@ -96,9 +108,7 @@ fn main() {
                     actions::init::module(Path::new(path), &args[2], pretend);
 		}
             }
-            _ => {
-                println!("Unknown action: {}", args[1]);
-            }
+            Action::None => {}
         }
     } else {
         println!("There is no parameters. The programe can't do anything for now");
