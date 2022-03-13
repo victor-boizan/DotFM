@@ -9,10 +9,12 @@ pub fn repo(path: &Path, pretend: bool){
         let mut repo_root = path.to_path_buf();
         /*init the git repo*/
         let mut repo_dir = repo_root.clone();
-        let repo = match Repository::init(repo_dir) {
-            Ok(repo) => repo,
-            Err(e) => panic!("failed to init: {}", e),
-        };
+        if !pretend {
+            let repo = match Repository::init(repo_dir) {
+                Ok(repo) => repo,
+                Err(e) => panic!("failed to init: {}", e),
+            };
+        }
         /*add a .gitignore*/
         let mut gitignore  = repo_root.clone();
         gitignore.push(".gitignore");
