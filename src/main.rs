@@ -49,14 +49,22 @@ fn main() {
         match action.as_str() {
             "install" => {
                 if args.len() > 2 && conf_modules::is_module(&Path::new(path).join(&args[2])) {
+		    /*enter if the second argument is a module*/
                     actions::install::modules(Path::new(path).join(&args[2]), pretend);
                 } else {
+		    /*if an url is provided but in second argument and their is no "--repo" parameter*/
+		    /*add the url to the url variable*/
+		    if arg.len() > 2 && &args[2].start_with("https://") && url == "" {
+			url = &args[2];
+		    }
+		    /*if their is an url, it will clone the repo*/
                     if url != "" {
                         let repo = match Repository::clone(url, path) {
                             Ok(repo) => repo,
                             Err(e) => panic!("failed to clone: {}", e),
                         };
                     };
+		    /*install all the modules in the DotFM folder*/
                     actions::install::repo(Path::new(path), pretend);
                 }
             }
