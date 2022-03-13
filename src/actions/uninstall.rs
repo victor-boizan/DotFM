@@ -30,7 +30,7 @@ pub fn modules(path: PathBuf, mode: &UninstallMode, del: bool, pretend: bool) ->
     let regex = Regex::new(
         "(?:\\[(?P<header>.*)\\])|(?:\"(?P<source>\\./.*)\"\\s+?=\\s*\"(?P<target>.*)\")",
     )
-    .unwrap();
+        .unwrap();
     let module_root = path.clone();
     let mut module_conf = path.clone();
     module_conf.push(".module.conf");
@@ -75,25 +75,25 @@ pub fn modules(path: PathBuf, mode: &UninstallMode, del: bool, pretend: bool) ->
                 );
 
                 if !pretend {
-		    match mode {
-			UninstallMode::Unlink => {
-			    if target.is_symlink() {
-				fs::copy(source, target);
-			    } 
-			},
-			UninstallMode::Clear => {
-			    if target.is_symlink() {
-				fs::remove_file(target);
-			    } 
-			},
-         UninstallMode::None => {}
-            }
+                    match mode {
+                        UninstallMode::Unlink => {
+                            if target.is_symlink() {
+                                fs::copy(source, target);
+                            }
+                        },
+                        UninstallMode::Clear => {
+                            if target.is_symlink() {
+                                fs::remove_file(target);
+                            }
+                        },
+                        UninstallMode::None => {}
+                    }
                 }
             }
         }
     }
     if del {
-	fs::remove_dir_all(module_root);
+        fs::remove_dir_all(module_root);
     }
     Ok(())
 

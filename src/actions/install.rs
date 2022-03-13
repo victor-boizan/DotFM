@@ -14,8 +14,8 @@ pub fn repo(path: &Path, pretend: bool) {
 pub fn modules(path: PathBuf, pretend: bool) -> std::io::Result<()> {
     let regex = Regex::new(
         "(?:\\[(?P<header>.*)\\])|(?:\"(?P<source>\\./.*)\"\\s+?=\\s*\"(?P<target>.*)\")",
-    )
-    .unwrap();
+    ).unwrap();
+
     let module_root = path.clone();
     let mut module_conf = path.clone();
     module_conf.push(".module.conf");
