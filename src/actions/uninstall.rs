@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use regex::Regex;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader};
-use std::os::unix;
 
 pub enum UninstallMode {
     Unlink,
