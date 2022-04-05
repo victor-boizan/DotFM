@@ -15,7 +15,7 @@ The ".module.conf" explain how to link the files of the module.
 
 First, you need to add '[files]' at the top of your files to start the files section,
 anything before is ignored. After you can add lines formatted like this:
-"<module path>" => "<destination path>"
+"module path" => "destination path"
 
 The module path is relative to the module root and will be the source of the generated link
 The destination path would be the full path to the destination link.
@@ -25,10 +25,10 @@ The quotation marks are mandatory and you can't use them in the paths.
 
 ### How to use the software
 
-dotfm <action> [<module name>] [<action parameters>] [global parameters]
+dotfm action [module name] [action parameters] [global parameters]
 
 #### action
-install: install the module (if a <module name> is given) or the entire repo.
+install: install the module (if a module name is given) or the entire repo.
 you can clone the repo if you give an URL as the 2nd parameter or if you use --clone
 
 
